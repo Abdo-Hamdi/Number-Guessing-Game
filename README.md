@@ -3,11 +3,12 @@
 A simple, interactive console-based number guessing game built with **C#**. This project is inspired by the [roadmap.sh](https://roadmap.sh/projects/number-guessing-game) project ideas.
 
 ## Features
-* **Difficulty Levels:** Choose between Easy, Medium, and Hard.
+* **Difficulty Levels:** Choose between Easy, Medium, and Hard or any Custom Level Created by `Level` Class.
 * **Dynamic Chances:** Each level gives you a specific number of attempts.
 * **High Score Tracking:** The game remembers your best (lowest) score for each difficulty during the session.
 * **Input Validation:** Handles non-integer inputs and decimals gracefully without wasting your turns.
 * **Replayability:** Option to restart the game and clear the console after each round.
+* **Timer:** Tracks exactly how many seconds (with fractions) it took you to win.
 
 ## How to Play
 1. **Run the application.**
@@ -25,4 +26,4 @@ A simple, interactive console-based number guessing game built with **C#**. This
 
 ## Future Enhancements
 * [ ] Save high scores to a local file (`.txt` or `.json`).
-* [ ] Add a timer to track how fast the user guesses.
+* [ ] Add a "Best Time" record for each level.

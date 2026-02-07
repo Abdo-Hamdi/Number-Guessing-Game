@@ -1,18 +1,13 @@
-﻿namespace Number_Guessing_Game.App;
+﻿using System.Diagnostics;
+
+namespace Number_Guessing_Game.App;
 
 class Program
 {
-    enum DifficultyLevels
-    {
-        Easy = 10,
-        Medium = 5,
-        Hard = 3,
-        Default = 0
-    }
+    private static Level _easy = new Level(DifficultyLevels.Easy);
+    private static Level _medium = new Level(DifficultyLevels.Medium);
+    private static Level _hard = new Level(DifficultyLevels.Hard);
     private readonly static Random _random = new Random();
-    private static int EasyHighScore = int.MaxValue;
-    private static int MeduimHighScore = int.MaxValue;
-    private static int HardHighScore = int.MaxValue;
     static void Main(string[] args)
     {
         Console.WriteLine("Welcome to the Number Guessing Game!\nI'm thinking of a integer number between 1 and 100.\nYou have number of chances to guess the correct number.\n\n");
@@ -22,11 +17,11 @@ class Program
             Console.WriteLine("Please select the difficulty level:\n1. Easy (10 chances)\n2. Medium (5 chances)\n3. Hard (3 chances)");
             Console.WriteLine();
             Console.Write("Enter your choice: ");
-            if (int.TryParse(Console.ReadLine(), out int choice))
+            if (int.TryParse(Console.ReadLine(), out int userChoice))
             {
                 Console.WriteLine();
-                SetDifficulty(choice, out DifficultyLevels difficulty);
-                if (difficulty == DifficultyLevels.Default)
+                SetDifficultyLevel(userChoice, out Level difficulty);
+                if (difficulty == null)
                     continue;
                 PlayGame(difficulty);
                 if (PlayAgain())
@@ -48,49 +43,44 @@ class Program
         }
     }
 
-    private static void SetDifficulty(int difficultyLevel, out DifficultyLevels difficulty)
+    private static void SetDifficultyLevel(int userChoice, out Level difficulty)
     {
-        if (difficultyLevel == 1)
+        if (userChoice == 1)
         {
-            difficulty = DifficultyLevels.Easy;
+            difficulty = _easy;
         }
-        else if (difficultyLevel == 2)
+        else if (userChoice == 2)
         {
-            difficulty = DifficultyLevels.Medium;
+            difficulty = _medium;
         }
-        else if (difficultyLevel == 3)
+        else if (userChoice == 3)
         {
-            difficulty = DifficultyLevels.Hard;
+            difficulty = _hard;
         }
         else
         {
-            difficulty = DifficultyLevels.Default;
+            difficulty = null;
             Console.WriteLine("Invalid Value");
             Console.WriteLine();
         }
     }
 
-    private static void PlayGame(DifficultyLevels difficulty)
+    private static void PlayGame(Level difficulty)
     {
-        int tries = (int)difficulty;
-        Console.WriteLine($"Great! You have selected the {difficulty} difficulty level.");
-        if (difficulty == DifficultyLevels.Easy)
-        {
-            Console.WriteLine($"High Score For {difficulty} Level = {EasyHighScore}");
-        }
-        else if (difficulty == DifficultyLevels.Medium)
-        {
-            Console.WriteLine($"High Score For {difficulty} Level = {MeduimHighScore}");
-        }
-        else
-        {
-            Console.WriteLine($"High Score For {difficulty} Level = {HardHighScore}");
-        }
-        Console.WriteLine("Let's start the game!");
         int generatedNumber = _random.Next(1, 101);
         int attemptsNumber = 1;
+        int tries = difficulty.Chances;
+
+        Console.WriteLine($"Great! You have selected the {difficulty.Name} difficulty level.");
+        if (!difficulty.IsFirstTime)
+            Console.WriteLine($"High Score For {difficulty.Name} Level = {difficulty.HighScore}.");
+        else
+            Console.WriteLine($"High Score For {difficulty.Name} Level = nan.");
+        Console.WriteLine("Let's start the game!");
+
         while (tries > 0)
         {
+            Stopwatch timer = Stopwatch.StartNew();
             Console.Write("Enter your guess: ");
             if (int.TryParse(Console.ReadLine(), out int guessNumber))
             {
@@ -104,32 +94,11 @@ class Program
                 }
                 else
                 {
+                    timer.Stop();
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Congratulations! You guessed the correct number in {attemptsNumber} attempts.");
-                    if (difficulty == DifficultyLevels.Easy)
-                    {
-                        if (attemptsNumber < EasyHighScore)
-                        {
-                            EasyHighScore = attemptsNumber;
-                            Console.WriteLine($"WOW! New High Score in {DifficultyLevels.Easy}.");
-                        }
-                    }
-                    else if (difficulty == DifficultyLevels.Medium)
-                    {
-                        if (attemptsNumber < MeduimHighScore)
-                        {
-                            MeduimHighScore = attemptsNumber;
-                            Console.WriteLine($"WOW! New High Score in {DifficultyLevels.Medium}.");
-                        }
-                    }
-                    else
-                    {
-                        if (attemptsNumber < HardHighScore)
-                        {
-                            HardHighScore = attemptsNumber;
-                            Console.WriteLine($"WOW! New High Score in {DifficultyLevels.Hard}.");
-                        }
-                    }
+                    Console.WriteLine($"Time taken: {timer.Elapsed.TotalSeconds:f2} seconds.");
+                    difficulty.UpdateHighScore(attemptsNumber);
                     Console.ResetColor();
                     return;
                 }
@@ -156,7 +125,7 @@ class Program
         if (!string.IsNullOrEmpty(playAgain))
             playAgain = playAgain.ToLower();
         else
-            playAgain = "n";
+            playAgain = "";
         return playAgain == "y" || playAgain.StartsWith('y');
     }
 }
